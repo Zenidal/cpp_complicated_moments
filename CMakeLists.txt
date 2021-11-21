@@ -3,4 +3,4 @@ project(cpp_complicated_moments)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(cpp_complicated_moments main.cpp Homework2/Task1/Task1.cpp)
+add_executable(cpp_complicated_moments main.cpp Homework2/Homework2.cpp Homework2/Timer.cpp Homework2/Timer.h Homework2/VowelsCounter.cpp Homework2/VowelsCounter.h)
