@@ -1,32 +1,88 @@
-#include <iostream>
-#include <fstream>
-#include <string>
+#include "iostream"
 
-#include "Homework1/PhoneBook.h"
+#include "Homework8/Task1/CUnit.h"
+
+template<class Lambda>
+void executeTest(const std::string &caseName, CUnit::CUnit &cUnit, Lambda testCase)
+{
+    bool testCaseFailed = false;
+
+    try {
+        testCase(cUnit);
+    } catch (CUnit::AssertFailedException &exception) {
+        testCaseFailed = true;
+
+        std::cerr << "[" + caseName + "] - " << exception.what() << std::endl;
+    } catch (...) {
+        testCaseFailed = true;
+    }
+
+    if (!testCaseFailed) {
+        std::cout << "[" + caseName + "] - OK." << std::endl;
+    }
+}
 
 int main()
 {
-    std::ifstream stream;
-    stream.open("phones.txt");
+    { // task 1
+        CUnit::CUnit cUnit;
 
-    PhoneBook phoneBook(stream);
-    std::cout << phoneBook << std::endl;
+        executeTest("assert equals passed", cUnit, [](CUnit::CUnit &cUnit) -> void {
+            cUnit.assertEquals(6, 6);
+        });
+        executeTest("assert equals failed", cUnit, [](CUnit::CUnit &cUnit) -> void {
+            cUnit.assertEquals(5, 6);
+        });
 
-    phoneBook.sortByName();
-    std::cout << phoneBook << std::endl;
+        executeTest("assert equals with string passed", cUnit, [](CUnit::CUnit &cUnit) -> void {
+            cUnit.assertEquals("string 1", "string 1");
+        });
+        executeTest("assert equals with string failed", cUnit, [](CUnit::CUnit &cUnit) -> void {
+            cUnit.assertEquals("string 1", "string 2");
+        });
 
-    phoneBook.sortByPhone();
-    std::cout << phoneBook << std::endl;
+        executeTest("assert equals with double passed", cUnit, [](CUnit::CUnit &cUnit) -> void {
+            cUnit.assertEquals(6.0, 6.0);
+        });
+        executeTest("assert equals with double failed", cUnit, [](CUnit::CUnit &cUnit) -> void {
+            cUnit.assertEquals(6.1, 6.0);
+        });
 
-    auto[description, phoneNumber] = phoneBook.getPhoneNumber("Miskevich");
-    std::cout << "Description: " << description << std::endl;
-    if (phoneNumber.has_value()) {
-        std::cout << phoneNumber.value() << std::endl;
+        executeTest("assert less than passed", cUnit, [](CUnit::CUnit &cUnit) -> void {
+            cUnit.assertLessThan(5, 6);
+        });
+        executeTest("assert less than failed", cUnit, [](CUnit::CUnit &cUnit) -> void {
+            cUnit.assertLessThan(6, 6);
+        });
+
+        executeTest("assert true passed", cUnit, [](CUnit::CUnit &cUnit) -> void {
+            cUnit.assertTrue(5 == 5);
+        });
+        executeTest("assert true failed", cUnit, [](CUnit::CUnit &cUnit) -> void {
+            cUnit.assertTrue(6 == 5);
+        });
+
+        executeTest("assert false passed", cUnit, [](CUnit::CUnit &cUnit) -> void {
+            cUnit.assertFalse(6 == 5);
+        });
+        executeTest("assert false failed", cUnit, [](CUnit::CUnit &cUnit) -> void {
+            cUnit.assertFalse(5 == 5);
+        });
+
+        auto e = std::exception();
+        executeTest("expect exception passed", cUnit, [e](CUnit::CUnit &cUnit) -> void {
+            cUnit.expectException([e]() {
+                throw e;
+            }, typeid(e).name());
+        });
+        executeTest("expect exception is invalid", cUnit, [](CUnit::CUnit &cUnit) -> void {
+            cUnit.expectException([]() {
+                throw std::runtime_error("runtime_exception");
+            }, typeid(std::exception()).name());
+        });
+        executeTest("expect exception failed", cUnit, [](CUnit::CUnit &cUnit) -> void {
+            cUnit.expectException([]() {
+            }, typeid(std::exception()).name());
+        });
     }
-
-    std::cout << std::endl;
-
-    auto newPhoneNumber = PhoneNumber(7, 911, "1234567", 12);
-    phoneBook.changePhoneNumber(Person("Alexandr", "Miskevich", "Yaroslavovich"), newPhoneNumber);
-    std::cout << phoneBook;
 }
