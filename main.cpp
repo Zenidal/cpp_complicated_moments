@@ -1,6 +1,8 @@
 #include "iostream"
 
 #include "Homework8/Task1/CUnit.h"
+#include "Homework1/Person.h"
+#include "Homework1/PhoneNumber.h"
 
 template<class Lambda>
 void executeTest(const std::string &caseName, CUnit::CUnit &cUnit, Lambda testCase)
@@ -24,9 +26,9 @@ void executeTest(const std::string &caseName, CUnit::CUnit &cUnit, Lambda testCa
 
 int main()
 {
-    { // task 1
-        CUnit::CUnit cUnit;
+    CUnit::CUnit cUnit;
 
+    { // task 1
         executeTest("assert equals passed", cUnit, [](CUnit::CUnit &cUnit) -> void {
             cUnit.assertEquals(6, 6);
         });
@@ -83,6 +85,53 @@ int main()
         executeTest("expect exception failed", cUnit, [](CUnit::CUnit &cUnit) -> void {
             cUnit.expectException([]() {
             }, typeid(std::exception()).name());
+        });
+    }
+
+    { // task 2
+        executeTest("persons with and without third name are not equal", cUnit, [](CUnit::CUnit &cUnit) -> void {
+            Person person1("First name", "Second name", "Last name");
+            Person person2("First name", "Second name");
+
+            cUnit.assertFalse(person1 == person2);
+        });
+
+        executeTest("persons are equals", cUnit, [](CUnit::CUnit &cUnit) -> void {
+            Person person1("First name", "Second name", "Last name");
+            Person person2("First name", "Second name", "Last name");
+            cUnit.assertTrue(person1 == person2);
+        });
+
+        executeTest("first name return correct result", cUnit, [](CUnit::CUnit &cUnit) -> void {
+            Person person1("First name", "Second name", "Last name");
+            cUnit.assertEquals(person1.getFirstName(), std::string("First name"));
+        });
+
+        executeTest("second name return correct result", cUnit, [](CUnit::CUnit &cUnit) -> void {
+            Person person1("First name", "Second name", "Last name");
+            cUnit.assertEquals(person1.getSecondName(), std::string("Second name"));
+        });
+
+        executeTest("third name return correct result", cUnit, [](CUnit::CUnit &cUnit) -> void {
+            Person person1("First name", "Second name", "Last name");
+            cUnit.assertEquals(person1.getThirdName().value(), std::string("Last name"));
+        });
+
+        executeTest("third name doesn't exist", cUnit, [](CUnit::CUnit &cUnit) -> void {
+            Person person1("First name", "Second name");
+            cUnit.assertFalse(person1.getThirdName().has_value());
+        });
+
+        executeTest("phone numbers are equals", cUnit, [](CUnit::CUnit &cUnit) -> void {
+            PhoneNumber phoneNumber1(375, 29, "1234567");
+            PhoneNumber phoneNumber2(375, 29, "1234567");
+            cUnit.assertEquals(phoneNumber1, phoneNumber2);
+        });
+
+        executeTest("phone numbers with and without optional number are not equals", cUnit, [](CUnit::CUnit &cUnit) -> void {
+            PhoneNumber phoneNumber1(375, 29, "1234567");
+            PhoneNumber phoneNumber2(375, 29, "1234567", 23);
+            cUnit.assertNotEquals(phoneNumber1, phoneNumber2);
         });
     }
 }

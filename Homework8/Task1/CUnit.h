@@ -35,6 +35,14 @@ namespace CUnit
             }
 
             template<class T>
+            void assertNotEquals(T value1, T value2)
+            {
+                if (value1 == value2) {
+                    throw AssertFailedException(exceptionFormatter.getNotEqualsMessage(value1, value2));
+                }
+            }
+
+            template<class T>
             void assertLessThan(T value1, T value2)
             {
                 if (value1 >= value2) {

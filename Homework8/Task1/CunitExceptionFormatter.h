@@ -12,6 +12,7 @@ namespace CUnit
     {
         private:
             std::string equalsMessageFormat = "Expected value should be: '%d', got '%d'.";
+            std::string notEqualsMessageFormat = "Expected value should not equal: '%d', got '%d'.";
             std::string lessMessageFormat = "Expected value '%d' should be less than '%d'.";
             std::string lessOrEqualMessageFormat = "Expected value '%d' should be less or equal to '%d'.";
             std::string greaterMessageFormat = "Expected value '%d' should be greater than '%d'.";
@@ -23,6 +24,16 @@ namespace CUnit
         public:
             template<class T>
             std::string getEqualsMessage(T value1, T value2)
+            {
+                const int messageLength = 256;
+                char message[messageLength];
+
+                snprintf(message, messageLength, equalsMessageFormat.c_str(), value1, value2);
+
+                return message;
+            }
+            template<class T>
+            std::string getNotEqualsMessage(T value1, T value2)
             {
                 const int messageLength = 256;
                 char message[messageLength];
