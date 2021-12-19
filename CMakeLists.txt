@@ -3,4 +3,4 @@ project(cpp_complicated_moments)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(cpp_complicated_moments main.cpp Homework1/Person.cpp Homework1/Person.h Homework1/PhoneNumber.cpp Homework1/PhoneNumber.h Homework1/PhoneBook.cpp Homework1/PhoneBook.h)
+add_executable(cpp_complicated_moments main.cpp Homework7/Task3/IRepository.h Homework7/Task3/IMethods.h Homework7/Task3/StudentsGroup.cpp Homework7/Task3/StudentsGroup.h)
