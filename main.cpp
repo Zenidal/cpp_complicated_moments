@@ -10,6 +10,44 @@
 std::mutex mutex;
 std::condition_variable semaphore;
 
+size_t getPrimeNumberByNumber(size_t number)
+{
+    size_t soughtPrimeNumber = 0;
+
+    std::thread calculateThread([&soughtPrimeNumber, &number]() -> void {
+        std::set<size_t> primeNumbers;
+
+        std::cout << "Prime numbers with their indexes: " << std::endl;
+
+        size_t tempValue = 2;
+        while (primeNumbers.size() < number) {
+            bool isPrimeNumber = true;
+
+            for (auto primeNumber: primeNumbers) {
+                if (tempValue % primeNumber == 0) {
+                    isPrimeNumber = false;
+
+                    break;
+                }
+            }
+
+            if (isPrimeNumber) {
+                std::cout << primeNumbers.size() + 1 << " prime value: " << tempValue << std::endl;
+
+                primeNumbers.insert(tempValue);
+            }
+
+            ++tempValue;
+        }
+
+        soughtPrimeNumber = *std::prev(primeNumbers.end());
+    });
+
+    calculateThread.join();
+
+    return soughtPrimeNumber;
+}
+
 int main()
 {
     {
@@ -27,6 +65,14 @@ int main()
         for (auto &w: workers) {
             w.join();
         }
+    }
+
+    { // task 2
+        size_t numberOfPrimeNumber = 300;
+
+        auto primeNumber = getPrimeNumberByNumber(numberOfPrimeNumber);
+
+        std::cout << numberOfPrimeNumber << " prime number is: " << primeNumber << std::endl;
     }
 
     { // task 3
