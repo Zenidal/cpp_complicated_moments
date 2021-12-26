@@ -3,12 +3,32 @@
 #include <mutex>
 #include <condition_variable>
 #include <set>
+#include <vector>
+
+#include "Homework6/pcout.h"
 
 std::mutex mutex;
 std::condition_variable semaphore;
 
 int main()
 {
+    {
+        // task 1
+        std::vector<std::thread> workers;
+
+        size_t worker(0);
+        size_t threads(5);
+
+        for (size_t i = 0; i < threads; ++i) {
+            workers.emplace_back([&worker] {
+                pcout() << "This is worker " << ++worker << " in thread " << std::this_thread::get_id() << std::endl;
+            });
+        }
+        for (auto &w: workers) {
+            w.join();
+        }
+    }
+
     { // task 3
         std::set<unsigned int> values;
         unsigned int mostValuableValue = 1;
