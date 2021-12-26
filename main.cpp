@@ -1,32 +1,49 @@
+#include <thread>
 #include <iostream>
-#include <fstream>
-#include <string>
+#include <mutex>
+#include <condition_variable>
+#include <set>
 
-#include "Homework1/PhoneBook.h"
+std::mutex mutex;
+std::condition_variable semaphore;
 
 int main()
 {
-    std::ifstream stream;
-    stream.open("phones.txt");
+    { // task 3
+        std::set<unsigned int> values;
+        unsigned int mostValuableValue = 1;
+        int numberOfIterations = 10;
 
-    PhoneBook phoneBook(stream);
-    std::cout << phoneBook << std::endl;
+        std::thread host([&values, &mostValuableValue, numberOfIterations]() {
+            std::lock_guard<std::mutex> lock(mutex);
 
-    phoneBook.sortByName();
-    std::cout << phoneBook << std::endl;
+            for (int i = 0; i < numberOfIterations; i++) {
+                values.insert(mostValuableValue);
 
-    phoneBook.sortByPhone();
-    std::cout << phoneBook << std::endl;
+                std::cout << "Host has bought: " << mostValuableValue << std::endl;
+                mostValuableValue++;
 
-    auto[description, phoneNumber] = phoneBook.getPhoneNumber("Miskevich");
-    std::cout << "Description: " << description << std::endl;
-    if (phoneNumber.has_value()) {
-        std::cout << phoneNumber.value() << std::endl;
+                semaphore.notify_one();
+            }
+        });
+
+        std::thread thief([&values, numberOfIterations]() {
+            std::unique_lock<std::mutex> lock(mutex);
+
+            for (int i = 0; i < numberOfIterations; i++) {
+                semaphore.wait(lock, [&values] { return !values.empty(); });
+
+                auto stolenValueIt = std::prev(values.end());
+                auto stolenValue = *stolenValueIt;
+                values.erase(stolenValueIt);
+
+                std::cout << "Thief has stolen: " << stolenValue << std::endl;
+            }
+        });
+
+        host.join();
+        thief.join();
     }
 
-    std::cout << std::endl;
-
-    auto newPhoneNumber = PhoneNumber(7, 911, "1234567", 12);
-    phoneBook.changePhoneNumber(Person("Alexandr", "Miskevich", "Yaroslavovich"), newPhoneNumber);
-    std::cout << phoneBook;
+    return EXIT_SUCCESS;
 }
